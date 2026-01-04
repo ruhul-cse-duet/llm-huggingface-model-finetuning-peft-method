@@ -1,0 +1,55 @@
+# LoRA Fine-Tuning Configuration
+# ================================
+
+# PEFT Technique
+technique: "lora"
+
+# Base Model
+model_name: "meta-llama/Llama-2-7b-hf"  # or "gpt2", "mistralai/Mistral-7B-v0.1"
+
+# LoRA Configuration
+peft_config:
+  r: 16                                   # Rank (4, 8, 16, 32, 64)
+  lora_alpha: 32                          # Scaling factor (typically 2*r)
+  target_modules:                         # Modules to apply LoRA
+    - "q_proj"
+    - "v_proj"
+    # - "k_proj"                          # Add for more adaptation
+    # - "o_proj"
+    # - "gate_proj"                       # Add for FFN layers
+    # - "up_proj"
+    # - "down_proj"
+  lora_dropout: 0.05                      # Dropout probability
+  bias: "none"                            # "none", "all", "lora_only"
+  task_type: "CAUSAL_LM"                  # Task type
+  init_lora_weights: true                 # Initialize weights
+
+# Training Configuration
+epochs: 3
+batch_size: 4
+grad_accum: 4                             # Gradient accumulation steps
+learning_rate: 0.0002                     # 2e-4
+max_length: 512                           # Maximum sequence length
+warmup_steps: 100
+weight_decay: 0.01
+
+# Data Paths
+train_data: "data/raw/train.json"
+eval_data: "data/raw/eval.json"
+
+# Output
+output_dir: "outputs/lora_experiment"
+save_steps: 500
+eval_steps: 500
+logging_steps: 10
+
+# Hardware
+fp16: true                                # Use mixed precision
+gradient_checkpointing: false             # Enable for larger models
+
+# Notes
+# -----
+# - Start with r=8 or r=16 for most tasks
+# - Increase r for more complex adaptations
+# - Use target_modules ["q_proj", "v_proj"] for memory efficiency
+# - Add more modules for better performance but more memory
